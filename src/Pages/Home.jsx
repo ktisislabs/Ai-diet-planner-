@@ -210,7 +210,7 @@ function Home() {
 
           {showCalLoader && FancyLoader()}
           {tdee && (
-            <div className="mt-4 text-center">
+            <div className="mt-10 mb-10 text-center border p-2 border-black rounded-xl">
               <p className="text-lg font-semibold">Your Maintenance Calories:</p>
               <p className="text-xl font-bold text-green-600">{tdee} kcal/day</p>
             </div>
