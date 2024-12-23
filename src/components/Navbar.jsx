@@ -11,13 +11,13 @@ function Navbar() {
     <nav className='w-full h-auto border p-4 flex items-center justify-between shadow-2xl'>
       {/* Logo */}
       <span className='font-poppins text-3xl font-bold flex items-center'>
-        Kcal<p className='font-light'>Bot</p>
+        Kcal<p className='font-bold'>Bot</p> 
       </span>
 
       {/* Menu for larger screens */}
       <div className='hidden md:flex items-center gap-12'>
-        <p className='text-xl font-medium font-poppins hover:text-gray-500 cursor-pointer'>About</p>
-        <p className='text-xl font-medium font-poppins hover:text-gray-500 cursor-pointer'>Developer Github</p>
+        <p className='text-md font-medium font-poppins hover:text-gray-500 cursor-pointer'>About</p>
+        <p className='text-md font-medium font-poppins hover:text-gray-500 cursor-pointer'>Developer Github</p>
       </div>
 
       {/* Hamburger Menu (for small screens) */}

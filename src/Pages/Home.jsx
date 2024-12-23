@@ -12,11 +12,12 @@ function Home() {
     timePeriod: "",
     allergicTo: "",
     customPrompt: "",
-  }); 
+  });
 
-
-const [tdee,setTdee] = useState(null) ;  
-
+  const [tdee, setTdee] = useState(null);
+  const [showCalLoader, setShowCalLoader] = useState(false);
+  const [dietPlan, setDietPlan] = useState(null);
+  const [showDietLoader, setShowDietLoader] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,61 +27,74 @@ const [tdee,setTdee] = useState(null) ;
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(formData);
-    calculateCals()
-  };
+  const FancyLoader = () => (
+    <div className="mt-12 flex justify-center items-center">
+      <div className="relative flex justify-center items-center w-24 h-24">
+        <div className="absolute w-24 h-24 border-4 border-t-transparent border-blue-500 rounded-full animate-spin-slow"></div>
+        <div className="absolute w-16 h-16 border-4 border-t-transparent border-green-500 rounded-full animate-spin-fast"></div>
+        <div className="absolute w-8 h-8 border-4 border-t-transparent border-pink-500 rounded-full animate-spin-slower"></div>
+      </div>
+    </div>
+  );
 
+  const calculateCals = () => {
+    const { weight, age, height, gender, activityLevel } = formData;
 
-const calculateCals = () => { 
-    const weight = formData.weight; 
-    const age = formData.age; 
-    const height = formData.height; 
-    const gender = formData.gender ; 
-
-    // Calculate BMR (Basal Metabolic Rate)
-
-    let Bmr ; 
-    if(gender==="Male"){
-     Bmr = 10 * weight + 6.25 * height - (5 * age) + 5; 
+    let BMR;
+    if (gender === "Male") {
+      BMR = 10 * weight + 6.25 * height - 5 * age + 5;
+    } else if (gender === "Female") {
+      BMR = 10 * weight + 6.25 * height - 5 * age - 161;
     }
-    if(gender==="Female") {
-  Bmr = 10* weight + 6.25 * height - (5*age) -161 ; 
-   }
-   
-
-    const activityLevel = formData.activityLevel;
 
     let TDEE;
-
-    // Calculate Total Daily Energy Expenditure based on activity level
-    switch(activityLevel) {
-        case "sedentary": 
-            TDEE = Bmr * 1.2; 
-            break;
-        case "lightly_active": 
-            TDEE = Bmr * 1.375; 
-            break;
-        case "moderately_active": 
-            TDEE = Bmr * 1.55; 
-            break;
-        case "very_active": 
-            TDEE = Bmr * 1.725; 
-            break;
-        case "extra_active": 
-            TDEE = Bmr * 1.9; 
-            break;
-        default:
-            TDEE = Bmr; // If no activity level is selected, default to BMR
+    switch (activityLevel) {
+      case "sedentary":
+        TDEE = BMR * 1.2;
+        break;
+      case "light":
+        TDEE = BMR * 1.375;
+        break;
+      case "moderate":
+        TDEE = BMR * 1.55;
+        break;
+      case "active":
+        TDEE = BMR * 1.725;
+        break;
+      case "extra_active":
+        TDEE = BMR * 1.9;
+        break;
+      default:
+        TDEE = BMR;
     }
 
-    
-    setTdee(TDEE)
+    setTimeout(() => {
+      setTdee(TDEE.toFixed(2));
+      setShowCalLoader(false);
+    }, 2000);
+  };
 
-}
-console.log(tdee)
+  const generateDietPlan = () => {
+    const { fitnessGoal, timePeriod, allergicTo, customPrompt } = formData;
+    const prompt = `Create a ${timePeriod}-week diet plan for ${fitnessGoal}. Avoid ${allergicTo || "none"} and consider: ${customPrompt || "default preferences"}.`;
 
+    setTimeout(() => {
+      setDietPlan(`Sample Diet Plan for ${fitnessGoal}: [Generated based on ${prompt}]`);
+      setShowDietLoader(false);
+    }, 2000);
+  };
+
+  const handleCalorieSubmit = (e) => {
+    e.preventDefault();
+    setShowCalLoader(true);
+    calculateCals();
+  };
+
+  const handleDietSubmit = (e) => {
+    e.preventDefault();
+    setShowDietLoader(true);
+    generateDietPlan();
+  };
 
   return (
     <>
@@ -97,13 +111,10 @@ console.log(tdee)
             <h2 className="text-lg font-semibold text-gray-700 mb-4">
               Calculate Maintenance Calories
             </h2>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleCalorieSubmit}>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label
-                    htmlFor="height"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
+                  <label htmlFor="height" className="block text-sm font-medium text-gray-700 mb-2">
                     Height (cm)
                   </label>
                   <input
@@ -118,10 +129,7 @@ console.log(tdee)
                   />
                 </div>
                 <div>
-                  <label
-                    htmlFor="weight"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
+                  <label htmlFor="weight" className="block text-sm font-medium text-gray-700 mb-2">
                     Weight (kg)
                   </label>
                   <input
@@ -136,10 +144,7 @@ console.log(tdee)
                   />
                 </div>
                 <div>
-                  <label
-                    htmlFor="age"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
+                  <label htmlFor="age" className="block text-sm font-medium text-gray-700 mb-2">
                     Age
                   </label>
                   <input
@@ -156,10 +161,7 @@ console.log(tdee)
               </div>
 
               <div className="mt-4">
-                <label
-                  htmlFor="gender"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
+                <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-2">
                   Gender
                 </label>
                 <select
@@ -177,10 +179,7 @@ console.log(tdee)
               </div>
 
               <div className="mt-4">
-                <label
-                  htmlFor="activityLevel"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
+                <label htmlFor="activityLevel" className="block text-sm font-medium text-gray-700 mb-2">
                   Activity Level
                 </label>
                 <select
@@ -193,40 +192,37 @@ console.log(tdee)
                 >
                   <option value="">Select activity level</option>
                   <option value="sedentary">Sedentary (little to no exercise)</option>
-                  <option value="light">Light Exercise (light exercise 1–3 days/week)</option>
-                  <option value="moderate">Moderate Exercise (moderate exercise 3–5 days/week)</option>
-                  <option value="active">Active Exercise (physical job or extreme exercise)</option>
+                  <option value="light">Light Exercise (1–3 days/week)</option>
+                  <option value="moderate">Moderate Exercise (3–5 days/week)</option>
+                  <option value="active">Active (6–7 days/week)</option>
+                  <option value="extra_active">Extra Active (intense exercise or physical job)</option>
                 </select>
               </div>
 
               <button
                 type="submit"
                 className="w-full py-3 px-6 mt-6 bg-green-600 text-white font-semibold rounded-md hover:bg-green-700 transition duration-300"
-              
               >
                 Calculate Calories
               </button>
             </form>
           </section>
 
-          {tdee ? (
-  <div className="mt-2 my-12 font-poppins text-center border bg-black p-2 text-lg font-regular text-white rounded-full">
-    Your Total Daily Maintenance Calories is: <strong>{tdee} cals</strong>
-  </div>
-) : null}
+          {showCalLoader && FancyLoader()}
+          {tdee && (
+            <div className="mt-4 text-center">
+              <p className="text-lg font-semibold">Your Maintenance Calories:</p>
+              <p className="text-xl font-bold text-green-600">{tdee} kcal/day</p>
+            </div>
+          )}
 
           {/* Diet Plan Section */}
           <section>
-            <h2 className="text-lg font-semibold text-gray-700 mb-4">
-              Generate Diet Plan
-            </h2>
-            <form onSubmit={handleSubmit}>
+            <h2 className="text-lg font-semibold text-gray-700 mb-4">Generate Diet Plan</h2>
+            <form onSubmit={handleDietSubmit}>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label
-                    htmlFor="fitnessGoal"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
+                  <label htmlFor="fitnessGoal" className="block text-sm font-medium text-gray-700 mb-2">
                     Fitness Goal
                   </label>
                   <select
@@ -243,12 +239,8 @@ console.log(tdee)
                     <option value="maintenance">Maintenance</option>
                   </select>
                 </div>
-
                 <div>
-                  <label
-                    htmlFor="timePeriod"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
+                  <label htmlFor="timePeriod" className="block text-sm font-medium text-gray-700 mb-2">
                     Time Period (weeks)
                   </label>
                   <input
@@ -265,10 +257,7 @@ console.log(tdee)
               </div>
 
               <div className="mt-4">
-                <label
-                  htmlFor="allergicTo"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
+                <label htmlFor="allergicTo" className="block text-sm font-medium text-gray-700 mb-2">
                   Allergic To
                 </label>
                 <input
@@ -283,10 +272,7 @@ console.log(tdee)
               </div>
 
               <div className="mt-4">
-                <label
-                  htmlFor="customPrompt"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
+                <label htmlFor="customPrompt" className="block text-sm font-medium text-gray-700 mb-2">
                   Custom Prompt
                 </label>
                 <textarea
@@ -308,6 +294,14 @@ console.log(tdee)
               </button>
             </form>
           </section>
+
+          {showDietLoader && FancyLoader()}
+          {dietPlan && (
+            <div className="mt-4 text-center">
+              <p className="text-lg font-semibold">Your Generated Diet Plan:</p>
+              <p className="text-sm text-gray-700">{dietPlan}</p>
+            </div>
+          )}
         </div>
       </div>
     </>
