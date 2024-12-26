@@ -70,6 +70,8 @@ function Home() {
 
     setTimeout(() => {
       setTdee(TDEE.toFixed(2));
+      console.log(TDEE)
+      console.log(weight, age, height, gender, activityLevel)
       setShowCalLoader(false);
     }, 2000);
   };
@@ -273,7 +275,7 @@ function Home() {
 
               <div className="mt-4">
                 <label htmlFor="customPrompt" className="block text-sm font-medium text-gray-700 mb-2">
-                  Custom Prompt
+                 Additional Details
                 </label>
                 <textarea
                   id="customPrompt"
