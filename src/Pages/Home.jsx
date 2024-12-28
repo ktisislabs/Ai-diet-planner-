@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Navbar from "../components/Navbar";
+import axios from 'axios' ; 
 
 function Home() {
   const [formData, setFormData] = useState({
@@ -74,16 +75,53 @@ function Home() {
       console.log(weight, age, height, gender, activityLevel)
       setShowCalLoader(false);
     }, 2000);
+
+    return TDEE ; 
   };
 
-  const generateDietPlan = () => {
-    const { fitnessGoal, timePeriod, allergicTo, customPrompt } = formData;
-    const prompt = `Create a ${timePeriod}-week diet plan for ${fitnessGoal}. Avoid ${allergicTo || "none"} and consider: ${customPrompt || "default preferences"}.`;
+  const generateDietPlan = async () => {
 
-    setTimeout(() => {
-      setDietPlan(`Sample Diet Plan for ${fitnessGoal}: [Generated based on ${prompt}]`);
-      setShowDietLoader(false);
-    }, 2000);
+   const cals = calculateCals() ;  
+
+    const {  fitnessGoal, timePeriod, allergicTo, customPrompt } = formData;
+  
+    // Validate required fields
+    if (!fitnessGoal || !timePeriod || !cals || !allergicTo) {
+      alert('Please fill out the necessary details to generate the Diet Plan');
+      return;
+    }
+  
+    // Prepare the request payload
+    const payload = {
+      tdee:cals,
+      fitnessGoal,
+      timePeriod,
+      allergicTo: allergicTo || 'none',
+      customPrompt: customPrompt || 'default preferences',
+    };
+  
+    try {
+      const response = await axios.post(
+        'http://localhost:8000/api/diet-planner/submit-diet-req',
+        payload,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+  
+      alert('Please wait while we generate the diet for you!');
+    } catch (err) {
+      console.error('Error sending request:', err);
+  
+      // Handle error response
+      if (err.response) {
+        alert(`Error: ${err.response.data.message || 'Failed to process the request'}`);
+      } else {
+        alert('Failed to connect to the server. Please try again.');
+      }
+    }
   };
 
   const handleCalorieSubmit = (e) => {
