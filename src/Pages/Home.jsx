@@ -71,8 +71,6 @@ function Home() {
 
     setTimeout(() => {
       setTdee(TDEE.toFixed(2));
-      console.log(TDEE)
-      console.log(weight, age, height, gender, activityLevel)
       setShowCalLoader(false);
     }, 2000);
 
